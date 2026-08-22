@@ -359,13 +359,6 @@ async function boot(){
     await storeSet(KEYS.users, DB.users);
   }
 
-  document.getElementById('nav').addEventListener('click', (e)=>{
-    const item = e.target.closest('.nav-item');
-    if(!item) return;
-    setView(item.dataset.view);
-  });
-  document.querySelector('[data-action="logout"]').addEventListener('click', doLogout);
-
   let savedSessionId = null;
   try{ savedSessionId = window.localStorage ? window.localStorage.getItem('vidhya_session_user') : null; }catch(e){ /* localStorage unavailable -- fall through to login screen */ }
   const sessionUser = savedSessionId ? DB.users.find(u=>u.id===savedSessionId) : null;
@@ -401,12 +394,6 @@ function renderLogin(){
         </div>`).join('')}
     </div>
   </div>`;
-  el.querySelectorAll('[data-loginbtn]').forEach(btn=>{
-    btn.addEventListener('click', ()=> doLogin(btn.dataset.uid));
-  });
-  el.querySelectorAll('.login-pin').forEach(inp=>{
-    inp.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(inp.dataset.uid); });
-  });
 }
 function doLogin(uid){
   const u = DB.users.find(x=>x.id===uid);
@@ -445,7 +432,6 @@ function render(param){
   else if(view==='users') main.innerHTML = renderUsers();
   else if(view==='newInvoice') main.innerHTML = renderNewInvoice();
   else if(view==='viewInvoice') main.innerHTML = renderViewInvoice(param);
-  attachViewHandlers();
 }
 
 /* ---------------- Dashboard ---------------- */
@@ -1099,41 +1085,79 @@ async function deleteUser(id){
 function openModal(html){ document.getElementById('modalBody').innerHTML = html; document.getElementById('modalBg').classList.add('show'); }
 function closeModal(){ document.getElementById('modalBg').classList.remove('show'); }
 
-/* ---------------- Event delegation ---------------- */
-function attachViewHandlers(){
-  document.querySelectorAll('[data-action]').forEach(el=>{
-    if(el.closest('#nav')) return;
-    if(el.dataset.action==='logout') return; // handled once in boot(), not re-attached per render
-    el.addEventListener('click', onAction);
+/* ---------------- Global event delegation ----------------
+   Attached ONCE, at boot, to `document` -- never re-attached, never
+   per-element. This is the fix for the actual bug reported: "Save
+   Customer" (and Save Product, Save User) silently did nothing when
+   clicked from inside a modal, because the previous version required
+   manually re-attaching listeners after every single HTML injection,
+   and modals were one of the places that got missed. A listener on
+   `document` fires for clicks on elements that didn't even exist when
+   the listener was attached, so there is no re-attachment step to
+   forget, anywhere, ever -- including in code added later. */
+function setupGlobalEventDelegation(){
+  document.addEventListener('click', (e)=>{
+    const navItem = e.target.closest('.nav-item');
+    if(navItem){ setView(navItem.dataset.view); return; }
+
+    const loginBtn = e.target.closest('[data-loginbtn]');
+    if(loginBtn){ doLogin(loginBtn.dataset.uid); return; }
+
+    const actionEl = e.target.closest('[data-action]');
+    if(actionEl && actionEl.tagName !== 'SELECT'){
+      onAction({ preventDefault: ()=>e.preventDefault(), currentTarget: actionEl });
+    }
   });
-  const catSel = document.getElementById('invCustomer');
-  if(catSel) catSel.addEventListener('change', ()=>{ syncDraftFieldsFromInputs(); document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers(); });
-  document.querySelectorAll('.line-item-row input, .line-item-row select[data-action="pick-product"]').forEach(inp=>{
-    inp.addEventListener('input', ()=>{ syncDraftFieldsFromInputs(); const scroll=window.scrollY; document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers(); window.scrollTo(0,scroll); });
+
+  document.addEventListener('change', (e)=>{
+    if(e.target.id === 'invCustomer'){
+      syncDraftFieldsFromInputs();
+      document.getElementById('main').innerHTML = renderNewInvoice();
+      return;
+    }
+    if(e.target.dataset && e.target.dataset.action === 'pick-product'){
+      syncDraftFieldsFromInputs();
+      const idx = Number(e.target.dataset.idx);
+      const p = DB.products.find(x=>x.id===e.target.value);
+      if(p) draft.items[idx] = Object.assign(draft.items[idx], {productId:p.id, name:p.name, hsn:p.hsn, rate:p.rate, unit:p.unit, gstRate:p.gstRate});
+      else draft.items[idx].productId = '';
+      document.getElementById('main').innerHTML = renderNewInvoice();
+      return;
+    }
+    if(e.target.id === 'importFileInput'){
+      if(e.target.files[0]) importBackup(e.target.files[0]);
+      return;
+    }
   });
-  const importInput = document.getElementById('importFileInput');
-  if(importInput) importInput.addEventListener('change', (e)=>{ if(e.target.files[0]) importBackup(e.target.files[0]); });
+
+  document.addEventListener('input', (e)=>{
+    if(e.target.dataset && e.target.dataset.field){
+      syncDraftFieldsFromInputs();
+      const scroll = window.scrollY;
+      document.getElementById('main').innerHTML = renderNewInvoice();
+      window.scrollTo(0, scroll);
+    }
+  });
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.target.classList && e.target.classList.contains('login-pin') && e.key==='Enter'){
+      doLogin(e.target.dataset.uid);
+    }
+  });
 }
 function onAction(e){
   e.preventDefault();
   const el = e.currentTarget;
   const action = el.dataset.action, id = el.dataset.id, idx = el.dataset.idx;
   if(action==='goto-invoices') setView('invoices');
-  else if(action==='view-invoice'){ view='viewInvoice'; document.getElementById('main').innerHTML = renderViewInvoice(id); attachViewHandlers(); }
+  else if(action==='view-invoice'){ view='viewInvoice'; document.getElementById('main').innerHTML = renderViewInvoice(id); }
   else if(action==='print-invoice') printInvoice(id);
   else if(action==='record-payment') recordPayment(id);
   else if(action==='cancel-invoice') cancelInvoice(id);
-  else if(action==='new-invoice'){ draft=null; view='newInvoice'; document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers(); }
+  else if(action==='new-invoice'){ draft=null; view='newInvoice'; document.getElementById('main').innerHTML = renderNewInvoice(); }
   else if(action==='save-invoice') saveInvoice();
-  else if(action==='add-line'){ syncDraftFieldsFromInputs(); draft.items.push({productId:'',name:'',hsn:'',qty:1,unit:'Nos',rate:0,gstRate:DB.settings.defaultGstRate}); document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers(); }
-  else if(action==='remove-line'){ syncDraftFieldsFromInputs(); draft.items.splice(Number(idx),1); if(!draft.items.length) draft.items.push({productId:'',name:'',hsn:'',qty:1,unit:'Nos',rate:0,gstRate:DB.settings.defaultGstRate}); document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers(); }
-  else if(action==='pick-product'){
-    syncDraftFieldsFromInputs();
-    const p = DB.products.find(x=>x.id===el.value);
-    if(p) draft.items[Number(idx)] = Object.assign(draft.items[Number(idx)], {productId:p.id, name:p.name, hsn:p.hsn, rate:p.rate, unit:p.unit, gstRate:p.gstRate});
-    else draft.items[Number(idx)].productId='';
-    document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers();
-  }
+  else if(action==='add-line'){ syncDraftFieldsFromInputs(); draft.items.push({productId:'',name:'',hsn:'',qty:1,unit:'Nos',rate:0,gstRate:DB.settings.defaultGstRate}); document.getElementById('main').innerHTML = renderNewInvoice(); }
+  else if(action==='remove-line'){ syncDraftFieldsFromInputs(); draft.items.splice(Number(idx),1); if(!draft.items.length) draft.items.push({productId:'',name:'',hsn:'',qty:1,unit:'Nos',rate:0,gstRate:DB.settings.defaultGstRate}); document.getElementById('main').innerHTML = renderNewInvoice(); }
   else if(action==='new-customer') openModal(customerForm());
   else if(action==='edit-customer') openModal(customerForm(DB.customers.find(c=>c.id===id)));
   else if(action==='save-customer') saveCustomer(id||null);
@@ -1150,8 +1174,8 @@ function onAction(e){
   else if(action==='cloud-backup-now'){ DB.settings.cloudBackupUrl = document.getElementById('setCloudUrl').value.trim(); storeSet(KEYS.settings, DB.settings).then(()=>cloudBackup(false)); }
 }
 
-/* logout button lives in the sidebar nav-foot area via a simple long-press-free approach: */
 document.addEventListener('DOMContentLoaded', ()=>{
+  setupGlobalEventDelegation();
   boot();
   if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
 });
