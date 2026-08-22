@@ -1,0 +1,46 @@
+/**
+ * VIDHYA INDUSTRIES — Cloud Backup Receiver
+ * -----------------------------------------------------
+ * SETUP (one-time, ~5 minutes):
+ * 1. Go to https://script.google.com -> New Project
+ * 2. Delete any starter code, paste in this entire file.
+ * 3. Click "Deploy" -> "New deployment"
+ *    - Type: "Web app"
+ *    - Execute as: "Me"
+ *    - Who has access: "Anyone"
+ * 4. Click Deploy, authorize when Google asks (it's your own script).
+ * 5. Copy the "Web app URL" it gives you.
+ * 6. Paste that URL into the billing app: Settings -> Cloud Backup -> Backup Web App URL.
+ * 7. Click "Backup Now" in the app, then check your Google Drive for a
+ *    new folder called "Vidhya Industries Backups" with a dated JSON file inside.
+ *
+ * Every time you open Settings or the app starts, it can silently send a
+ * fresh copy here. Old backups are kept -- nothing is ever overwritten, so
+ * you always have history to restore from.
+ */
+
+function doPost(e) {
+  if (!e || !e.postData) {
+    return ContentService
+      .createTextOutput("This endpoint expects a POST request with JSON data — it can't be tested with the Run button. Deploy it and use the billing app's 'Backup Now' button instead.")
+      .setMimeType(ContentService.MimeType.TEXT);
+  }
+  var folderName = "Vidhya Industries Backups";
+  var folders = DriveApp.getFoldersByName(folderName);
+  var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+
+  var timestamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd_HH-mm-ss");
+  var fileName = "backup-" + timestamp + ".json";
+
+  folder.createFile(fileName, e.postData.contents, MimeType.PLAIN_TEXT);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({status: "ok", file: fileName}))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet(e) {
+  return ContentService
+    .createTextOutput("Vidhya Industries backup endpoint is live.")
+    .setMimeType(ContentService.MimeType.TEXT);
+}

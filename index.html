@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Vidhya Industries — Billing</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="theme-color" content="#0f766e">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  :root{
+    --teal-deep:#0f766e;
+    --teal-mid:#14a189;
+    --accent:#f59e0b;
+    --paper:#F3F4F6;
+    --panel:#FFFFFF;
+    --ink:#1B2430;
+    --slate:#5B6472;
+    --border:#DDE1E6;
+    --success:#2E7D5B;
+    --success-bg:#E7F3EC;
+    --danger:#C0392B;
+    --danger-bg:#FBEAE8;
+    --warn-bg:#FFF4E1;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:'IBM Plex Sans',Arial,sans-serif;font-size:14px;}
+  h1,h2,h3{font-family:'Oswald',Arial,sans-serif;font-weight:600;letter-spacing:.02em;margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;font-size:13.5px;}
+  a{color:inherit;}
+
+  .app{display:flex;min-height:100vh;}
+
+  /* Sidebar */
+  .sidebar{width:230px;flex-shrink:0;background:var(--teal-deep);color:#fff;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;}
+  .brand{display:flex;align-items:center;gap:10px;padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,.15);}
+  .kmark{width:36px;height:36px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:'Oswald';font-weight:700;color:#1C2530;font-size:14px;}
+  .brand-text .name{font-family:'Oswald';font-size:15px;font-weight:600;line-height:1.15;letter-spacing:.02em;}
+  .brand-text .sub{font-size:9.5px;letter-spacing:.12em;color:#8FD9CC;margin-top:2px;}
+  .nav{padding:14px 10px;flex:1;}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:6px;color:#CDE8E3;font-size:13.5px;font-weight:500;margin-bottom:2px;cursor:pointer;user-select:none;}
+  .nav-item svg{width:16px;height:16px;flex-shrink:0;}
+  .nav-item:hover{background:rgba(255,255,255,.08);color:#fff;}
+  .nav-item.active{background:var(--accent);color:#1C2530;font-weight:600;}
+  .nav-foot{padding:14px 18px 18px;font-size:11px;color:#7FB9AF;border-top:1px solid rgba(255,255,255,.15);}
+
+  /* Main */
+  .main{flex:1;min-width:0;padding:26px 32px 60px;}
+  .topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+  .topbar h1{font-size:22px;}
+  .topbar .desc{color:var(--slate);font-size:12.5px;margin-top:3px;}
+  .btn{border:none;border-radius:6px;padding:9px 16px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:7px;}
+  .btn-primary{background:var(--teal-deep);color:#fff;}
+  .btn-primary:hover{background:var(--teal-mid);}
+  .btn-outline{background:#fff;border:1px solid var(--border);color:var(--ink);}
+  .btn-outline:hover{border-color:var(--teal-mid);}
+  .btn-ghost{background:transparent;color:var(--slate);padding:6px 8px;}
+  .btn-ghost:hover{color:var(--danger);}
+  .btn-sm{padding:6px 10px;font-size:12px;}
+  .btn svg{width:14px;height:14px;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  /* Cards / stats */
+  .stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+  .stat-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .stat-card .label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);font-weight:600;}
+  .stat-card .value{font-family:'Oswald';font-size:26px;margin-top:6px;color:var(--teal-deep);}
+  .stat-card .value.alert{color:var(--danger);}
+  .stat-card .sub{font-size:11.5px;color:var(--slate);margin-top:4px;}
+
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px;}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--border);}
+  .panel-head h3{font-size:14px;color:var(--teal-deep);}
+  .panel-body{padding:18px;}
+
+  table{width:100%;border-collapse:collapse;}
+  th{text-align:left;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);font-weight:600;padding:10px 18px;background:#FAFAF7;border-bottom:1px solid var(--border);}
+  td{padding:11px 18px;border-bottom:1px solid #EFEEE8;font-size:13px;vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#FBFAF6;}
+  .empty-row td{text-align:center;color:var(--slate);padding:30px;font-size:13px;}
+
+  .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+  .badge-paid{background:var(--success-bg);color:var(--success);}
+  .badge-partial{background:var(--warn-bg);color:#95610C;}
+  .badge-unpaid{background:var(--danger-bg);color:var(--danger);}
+  .badge-cancelled{background:#F1F0EA;color:var(--slate);text-decoration:line-through;}
+
+  .field{margin-bottom:12px;}
+  .field label{display:block;font-size:11.5px;font-weight:600;color:var(--slate);margin-bottom:5px;text-transform:uppercase;letter-spacing:.04em;}
+  .field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:6px;background:#fff;}
+  .field textarea{resize:vertical;min-height:60px;}
+  .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .field-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(15,25,35,.55);z-index:100;align-items:flex-start;justify-content:center;overflow:auto;padding:40px 16px;}
+  .modal-bg.show{display:flex;}
+  .modal{background:#fff;border-radius:10px;max-width:680px;width:100%;padding:0;box-shadow:0 10px 40px rgba(0,0,0,.2);}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);}
+  .modal-head h3{font-size:16px;color:var(--teal-deep);}
+  .modal-body{padding:20px;max-height:70vh;overflow:auto;}
+  .modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;}
+  .modal-close{background:none;border:none;font-size:20px;color:var(--slate);line-height:1;}
+
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1B2430;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:all .25s;z-index:200;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  .line-item-row{display:grid;grid-template-columns:1.6fr 1fr .7fr .8fr .9fr .8fr auto;gap:8px;margin-bottom:8px;align-items:center;}
+  .line-item-row input,.line-item-row select{padding:7px 8px;font-size:12.5px;}
+  .totals-box{margin-top:16px;padding:14px 16px;background:#FAFAF7;border-radius:8px;}
+  .totals-row{display:flex;justify-content:space-between;padding:3px 0;font-size:13px;color:var(--slate);}
+  .totals-row.grand{font-family:'Oswald';font-size:17px;color:var(--teal-deep);border-top:1px solid var(--border);margin-top:6px;padding-top:8px;}
+
+  .backup-banner{padding:10px 16px;border-radius:8px;font-size:12.5px;margin-bottom:16px;}
+  .backup-banner.ok{background:var(--success-bg);color:var(--success);}
+  .backup-banner.warn{background:var(--warn-bg);color:#95610C;}
+
+  /* Invoice preview / print */
+  .invoice-preview{background:#fff;border:1px solid var(--border);border-radius:8px;padding:28px;max-width:720px;margin:0 auto;}
+  .invoice-preview .ihead{display:flex;justify-content:space-between;border-bottom:2px solid var(--teal-deep);padding-bottom:14px;margin-bottom:14px;}
+  .invoice-preview .ihead .biz{font-family:'Oswald';font-size:18px;color:var(--teal-deep);}
+  .invoice-preview .ihead .meta{font-size:12px;color:var(--slate);margin-top:2px;}
+  .invoice-preview .ihead .doctitle{font-family:'Oswald';font-size:20px;letter-spacing:.05em;color:var(--teal-deep);text-align:right;}
+  .invoice-preview .parties{display:flex;justify-content:space-between;margin-bottom:14px;font-size:12.5px;}
+  .invoice-preview .parties .box{background:#FAFAF7;border-radius:6px;padding:10px 14px;width:48%;}
+  .invoice-preview .parties .lbl{font-size:10px;text-transform:uppercase;color:var(--slate);letter-spacing:.06em;margin-bottom:4px;}
+  .invoice-preview table{font-size:12.5px;}
+  .invoice-preview th{background:var(--teal-deep);color:#fff;padding:7px 10px;font-size:10px;}
+  .invoice-preview td{padding:7px 10px;}
+  .invoice-preview .row{display:flex;justify-content:space-between;padding:3px 0;font-size:12.5px;}
+  .invoice-preview .row.grand{font-weight:700;font-size:15px;border-top:1.5px solid var(--ink);margin-top:4px;padding-top:6px;}
+  .invoice-preview .words{margin-top:10px;padding:8px 12px;background:#FAFAF7;border-radius:6px;font-size:11.5px;font-style:italic;}
+
+  @media print{
+    @page{ margin:10mm; }
+    *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; color-adjust:exact !important; }
+    body > *:not(#printArea){ display:none !important; }
+    #printArea{ display:block !important; }
+    #printArea .invoice-preview{ border:none; box-shadow:none; width:100%; }
+  }
+
+  @media (max-width: 780px){
+    .app{flex-direction:column;}
+    .sidebar{width:100%;height:auto;position:relative;flex-direction:row;overflow-x:auto;}
+    .brand{border-bottom:none;padding:12px;}
+    .nav{display:flex;padding:8px;flex:none;}
+    .nav-item{white-space:nowrap;margin-bottom:0;margin-right:4px;}
+    .nav-foot{display:none;}
+    .main{padding:16px;}
+    .stat-row{grid-template-columns:repeat(2,1fr);}
+    .field-row,.field-row3{grid-template-columns:1fr;}
+    .line-item-row{grid-template-columns:1fr;}
+    table{display:block;overflow-x:auto;white-space:nowrap;}
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="display:none"></div>
+
+<div id="appShell" style="display:none">
+  <div class="app">
+    <div class="sidebar">
+      <div class="brand">
+        <div class="kmark">VI</div>
+        <div class="brand-text">
+          <div class="name">VIDHYA INDUSTRIES</div>
+          <div class="sub">BILLING SYSTEM</div>
+        </div>
+      </div>
+      <div class="nav" id="nav">
+        <div class="nav-item" data-view="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Dashboard</div>
+        <div class="nav-item" data-view="invoices"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3v5h5"/><path d="M6 3h8l5 5v13H6z"/><path d="M9 13h6M9 17h6"/></svg>Invoices</div>
+        <div class="nav-item" data-view="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="17.5" cy="8.5" r="2.5"/><path d="M15.5 13.3c2.6.5 4.5 2.7 4.5 5.5"/></svg>Customers</div>
+        <div class="nav-item" data-view="products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>Products &amp; Services</div>
+        <div class="nav-item" data-view="dues"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Payments Due</div>
+        <div class="nav-item" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 01-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 010-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 014 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 010 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>Settings</div>
+        <div class="nav-item" data-view="users"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="17.5" cy="8.5" r="2.5"/><path d="M15.5 13.3c2.6.5 4.5 2.7 4.5 5.5"/></svg>Users</div>
+      </div>
+      <div class="nav-foot">
+        <div style="margin-bottom:8px">PERINTHALMANNA<br>KERALA</div>
+        <button data-action="logout" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#CDE8E3;padding:6px 10px;border-radius:6px;font-size:11.5px;width:100%">Sign Out</button>
+      </div>
+    </div>
+    <div class="main" id="main"><!-- rendered by JS --></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+<div id="printArea" style="display:none"></div>
+
+<script>
+/* ============================================================================
+   VIDHYA INDUSTRIES BILLING -- single-file app
+   ----------------------------------------------------------------------------
+   Same architecture as the Update Cars billing app this was built to match:
+   no server, no database, no build step. All data lives in this browser's
+   localStorage. Optional one-way cloud backup to your own Google Drive via
+   a small Google Apps Script (see cloud-backup-script.gs.txt).
+
+   This is a genuinely different tradeoff from a real backend: data is
+   per-device (this phone/laptop only, unless you export/import the JSON
+   backup file manually onto another device), and there's no real-time
+   multi-user sync -- if two people use this on two different devices, they
+   will NOT see each other's invoices without manually exporting/importing.
+   For one person (or one shared device) handling billing, that's exactly
+   the right amount of complexity. If you outgrow that -- multiple staff on
+   different devices needing to see the same live data -- that's the point
+   where a real backend (like the Next.js/Postgres version built earlier)
+   becomes worth the extra setup, not before.
+   ============================================================================ */
+
+/* ---------------- Storage helpers ---------------- */
+const KEYS = { settings:'vidhya:settings', customers:'vidhya:customers', products:'vidhya:products', invoices:'vidhya:invoices', users:'vidhya:users' };
+
+async function storeGet(key, fallback){
+  try{
+    const raw = window.localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch(e){ return fallback; }
+}
+async function storeSet(key, value){
+  try{ window.localStorage.setItem(key, JSON.stringify(value)); }
+  catch(e){ console.error('storage set failed', e); showToast('Save failed — storage error'); }
+}
+
+let DB = { settings:null, customers:[], products:[], invoices:[], users:[] };
+let currentUser = null;
+let view = 'dashboard';
+
+/* ---------------- Roles ---------------- */
+const ROLES = {
+  admin: { label:'Admin', nav:['dashboard','invoices','customers','products','dues','settings','users'], editSettings:true },
+  staff: { label:'Staff', nav:['dashboard','invoices','customers','products','dues'],                     editSettings:false },
+};
+const VIEW_PARENT = { newInvoice:'invoices', viewInvoice:'invoices' };
+function can(v){ return currentUser && ROLES[currentUser.role] && ROLES[currentUser.role].nav.includes(VIEW_PARENT[v] || v); }
+function canEditSettings(){ return currentUser && ROLES[currentUser.role] && ROLES[currentUser.role].editSettings; }
+
+const defaultSettings = {
+  businessName:'Vidhya Industries',
+  proprietor:'',
+  phone:'+91 90618 20076',
+  addressLine1:'',
+  city:'Perinthalmanna',
+  state:'Kerala',
+  pincode:'',
+  gstin:'',
+  bankAccountName:'',
+  bankAccountNumber:'',
+  bankIfsc:'',
+  bankName:'',
+  defaultGstRate:18,
+  invoiceCounter:0,
+  invoicePrefix:'VI',
+  cloudBackupUrl:'',
+  lastBackupAt:null
+};
+
+const defaultProducts = [
+  {id:cryptoId(), category:'goods', name:'Sample Product', hsn:'', unit:'Nos', rate:0, gstRate:18},
+  {id:cryptoId(), category:'service', name:'Sample Service', hsn:'', unit:'Job', rate:0, gstRate:18},
+];
+
+/* ---------------- Utilities ---------------- */
+function cryptoId(){ return 'id-' + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+function fmtMoney(n){ n = Number(n)||0; return '₹' + n.toLocaleString('en-IN', {maximumFractionDigits:2, minimumFractionDigits:2}); }
+function fmtDate(d){ if(!d) return '—'; const dt = new Date(d); return dt.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}); }
+function fmtDateTime(d){ if(!d) return '—'; const dt = new Date(d); return dt.toLocaleDateString('en-IN', {day:'2-digit', month:'short', year:'numeric'}) + ' · ' + dt.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'}); }
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function daysSince(dateStr){ if(!dateStr) return Infinity; return Math.floor((Date.now()-new Date(dateStr).getTime())/86400000); }
+function round2(n){ return Math.round((n + Number.EPSILON) * 100) / 100; }
+
+function numToWords(n){
+  const a = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  function two(n){ if(n<20) return a[n]; return b[Math.floor(n/10)] + (n%10 ? ' '+a[n%10] : ''); }
+  function three(n){ if(n>99) return a[Math.floor(n/100)]+' Hundred'+(n%100 ? ' '+two(n%100) : ''); return two(n); }
+  if(n===0) return 'Zero';
+  let crore = Math.floor(n/10000000); n%=10000000;
+  let lakh = Math.floor(n/100000); n%=100000;
+  let thousand = Math.floor(n/1000); n%=1000;
+  let rest = n;
+  let parts=[];
+  if(crore) parts.push(three(crore)+' Crore');
+  if(lakh) parts.push(three(lakh)+' Lakh');
+  if(thousand) parts.push(three(thousand)+' Thousand');
+  if(rest) parts.push(three(rest));
+  return parts.join(' ');
+}
+function amountInWords(total){
+  total = Math.max(0, Number(total)||0);
+  const rupees = Math.floor(total);
+  const paise = Math.round((total-rupees)*100);
+  let words = 'Rupees ' + numToWords(rupees);
+  if(paise>0) words += ' and ' + numToWords(paise) + ' Paise';
+  return words + ' Only';
+}
+
+/* ---------------- GST engine ----------------
+   Same logic validated in the earlier Next.js build: same state as the
+   business -> CGST+SGST split evenly; different state -> full rate as IGST.
+   Kept here as plain functions since there's no module system in a
+   single HTML file. */
+function gstMode(customerState){
+  const a = (DB.settings.state||'').trim().toLowerCase();
+  const b = (customerState||'').trim().toLowerCase();
+  return (a && b && a === b) ? 'INTRA' : 'INTER';
+}
+function splitGst(taxableValue, ratePercent, mode){
+  const totalTax = round2(taxableValue * (ratePercent/100));
+  if(mode === 'INTRA'){
+    const half = round2(totalTax/2);
+    return { cgst: half, sgst: round2(totalTax-half), igst: 0, totalTax };
+  }
+  return { cgst:0, sgst:0, igst: totalTax, totalTax };
+}
+function computeInvoiceTotals(items, mode, discountPercent){
+  discountPercent = Number(discountPercent)||0;
+  const subtotal = round2(items.reduce((s,it)=> s + (Number(it.qty)||0) * (Number(it.rate)||0), 0));
+  const discountAmount = round2(subtotal * (discountPercent/100));
+  const discountFactor = subtotal > 0 ? (subtotal - discountAmount) / subtotal : 1;
+  let taxable=0, cgst=0, sgst=0, igst=0;
+  for(const it of items){
+    const lineTaxable = round2((Number(it.qty)||0) * (Number(it.rate)||0) * discountFactor);
+    const g = splitGst(lineTaxable, Number(it.gstRate)||0, mode);
+    taxable = round2(taxable + lineTaxable);
+    cgst = round2(cgst + g.cgst); sgst = round2(sgst + g.sgst); igst = round2(igst + g.igst);
+  }
+  const total = round2(taxable + cgst + sgst + igst);
+  return { subtotal, discountAmount, taxable, cgst, sgst, igst, total };
+}
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>t.classList.remove('show'), 2400);
+}
+
+/* ---------------- Boot ---------------- */
+async function boot(){
+  DB.settings = await storeGet(KEYS.settings, null);
+  DB.settings = Object.assign({}, defaultSettings, DB.settings || {});
+  await storeSet(KEYS.settings, DB.settings);
+  DB.customers = await storeGet(KEYS.customers, []);
+  DB.products = await storeGet(KEYS.products, null);
+  if(!DB.products){ DB.products = defaultProducts; await storeSet(KEYS.products, DB.products); }
+  DB.invoices = await storeGet(KEYS.invoices, []);
+  DB.users = await storeGet(KEYS.users, null);
+  if(!DB.users || !DB.users.length){
+    DB.users = [{ id:cryptoId(), name:'Admin', role:'admin', pin:'1234' }];
+    await storeSet(KEYS.users, DB.users);
+  }
+
+  document.getElementById('nav').addEventListener('click', (e)=>{
+    const item = e.target.closest('.nav-item');
+    if(!item) return;
+    setView(item.dataset.view);
+  });
+  document.querySelector('[data-action="logout"]').addEventListener('click', doLogout);
+
+  let savedSessionId = null;
+  try{ savedSessionId = window.localStorage ? window.localStorage.getItem('vidhya_session_user') : null; }catch(e){ /* localStorage unavailable -- fall through to login screen */ }
+  const sessionUser = savedSessionId ? DB.users.find(u=>u.id===savedSessionId) : null;
+  if(sessionUser){ currentUser = sessionUser; document.getElementById('appShell').style.display='block'; document.getElementById('loginScreen').style.display='none'; setView(defaultViewFor(sessionUser.role)); }
+  else { renderLogin(); }
+}
+
+function defaultViewFor(role){
+  return ROLES[role] && ROLES[role].nav.includes('dashboard') ? 'dashboard' : (ROLES[role].nav[0]||'dashboard');
+}
+
+/* ---------------- Login ---------------- */
+function renderLogin(){
+  document.getElementById('appShell').style.display = 'none';
+  const el = document.getElementById('loginScreen');
+  el.style.display = 'block';
+  el.innerHTML = `
+  <div style="max-width:440px;margin:60px auto;padding:0 20px">
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="width:64px;height:64px;background:var(--teal-deep);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto;color:#fff;font-family:'Oswald';font-weight:700;font-size:22px;">VI</div>
+      <div style="font-family:'Oswald';font-size:18px;color:var(--teal-deep);margin-top:12px;">VIDHYA INDUSTRIES</div>
+      <div style="color:var(--slate);font-size:13px;margin-top:6px">Staff Login — select your name and enter your PIN</div>
+    </div>
+    <div id="loginList">
+      ${DB.users.map(u=>`
+        <div class="panel" style="padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
+          <div style="flex:1">
+            <div style="font-weight:600">${escapeHtml(u.name)}</div>
+            <div style="font-size:11px;color:var(--slate)">${ROLES[u.role] ? ROLES[u.role].label : u.role}</div>
+          </div>
+          <input type="password" maxlength="8" placeholder="PIN" data-uid="${u.id}" class="login-pin" style="width:70px;padding:8px;border:1px solid var(--border);border-radius:6px">
+          <button class="btn btn-primary btn-sm" data-uid="${u.id}" data-loginbtn="1">Login</button>
+        </div>`).join('')}
+    </div>
+  </div>`;
+  el.querySelectorAll('[data-loginbtn]').forEach(btn=>{
+    btn.addEventListener('click', ()=> doLogin(btn.dataset.uid));
+  });
+  el.querySelectorAll('.login-pin').forEach(inp=>{
+    inp.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(inp.dataset.uid); });
+  });
+}
+function doLogin(uid){
+  const u = DB.users.find(x=>x.id===uid);
+  const pinInput = document.querySelector(`.login-pin[data-uid="${uid}"]`);
+  if(!u || !pinInput) return;
+  if(String(pinInput.value) !== String(u.pin)){ showToast('Incorrect PIN'); pinInput.value=''; pinInput.focus(); return; }
+  currentUser = u;
+  try{ window.localStorage.setItem('vidhya_session_user', u.id); }catch(e){ console.error('session save failed', e); }
+  document.getElementById('appShell').style.display='block';
+  document.getElementById('loginScreen').style.display='none';
+  setView(defaultViewFor(u.role));
+}
+function doLogout(){
+  currentUser = null;
+  try{ window.localStorage.removeItem('vidhya_session_user'); }catch(e){ console.error('session clear failed', e); }
+  renderLogin();
+}
+
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ---------------- View routing ---------------- */
+function setView(v, param){
+  if(!can(v)){ v = defaultViewFor(currentUser.role); }
+  view = v;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.toggle('active', el.dataset.view===v));
+  render(param);
+}
+function render(param){
+  const main = document.getElementById('main');
+  if(view==='dashboard') main.innerHTML = renderDashboard();
+  else if(view==='invoices') main.innerHTML = renderInvoices();
+  else if(view==='customers') main.innerHTML = renderCustomers();
+  else if(view==='products') main.innerHTML = renderProducts();
+  else if(view==='dues') main.innerHTML = renderDues();
+  else if(view==='settings') main.innerHTML = renderSettings();
+  else if(view==='users') main.innerHTML = renderUsers();
+  else if(view==='newInvoice') main.innerHTML = renderNewInvoice();
+  else if(view==='viewInvoice') main.innerHTML = renderViewInvoice(param);
+  attachViewHandlers();
+}
+
+/* ---------------- Dashboard ---------------- */
+function invoiceBalance(inv){ return round2(inv.total - (inv.paid||0)); }
+function invoiceStatus(inv){
+  if(inv.cancelled) return 'cancelled';
+  const bal = invoiceBalance(inv);
+  if(bal<=0.01) return 'paid';
+  if((inv.paid||0)>0) return 'partial';
+  return 'unpaid';
+}
+function renderDashboard(){
+  const invoices = DB.invoices.filter(i=>!i.cancelled);
+  const today = todayISO();
+  const cashToday = DB.invoices.reduce((s,i)=> s + (i.payments||[]).filter(p=>p.date && p.date.slice(0,10)===today).reduce((a,p)=>a+Number(p.amount||0),0), 0);
+  const outstanding = invoices.reduce((s,i)=> s + Math.max(0, invoiceBalance(i)), 0);
+  const outstandingCount = invoices.filter(i=>invoiceBalance(i)>0.01).length;
+  const recent = [...DB.invoices].sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
+  const dsb = DB.settings.lastBackupAt ? daysSince(DB.settings.lastBackupAt) : Infinity;
+
+  return `
+    <div class="topbar"><div><h1>Dashboard</h1><div class="desc">Overview of your billing activity</div></div></div>
+    ${dsb===Infinity
+      ? `<div class="backup-banner warn"><span>⚠ No backup yet. Go to Settings → Cloud Backup to protect your data.</span></div>`
+      : dsb>7
+        ? `<div class="backup-banner warn"><span>⚠ Last backup was ${dsb} days ago. Consider backing up again.</span></div>`
+        : `<div class="backup-banner ok"><span>✓ Backed up ${dsb===0?'today':dsb+' day'+(dsb===1?'':'s')+' ago'}${DB.settings.cloudBackupUrl?' · cloud backup enabled':''}.</span></div>`}
+    <div class="stat-row">
+      <div class="stat-card"><div class="label">Cash In Today</div><div class="value">${fmtMoney(cashToday)}</div></div>
+      <div class="stat-card"><div class="label">Outstanding</div><div class="value ${outstanding>0?'alert':''}">${fmtMoney(outstanding)}</div><div class="sub">${outstandingCount} unpaid invoice${outstandingCount===1?'':'s'}</div></div>
+      <div class="stat-card"><div class="label">Total Invoices</div><div class="value">${DB.invoices.length}</div></div>
+      <div class="stat-card"><div class="label">Customers</div><div class="value">${DB.customers.length}</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>Recent Invoices</h3><button class="btn btn-outline btn-sm" data-action="goto-invoices">View all</button></div>
+      <table>
+        <thead><tr><th>Invoice #</th><th>Customer</th><th>Date</th><th>Total</th><th>Status</th></tr></thead>
+        <tbody>
+          ${recent.length ? recent.map(inv=>{
+            const cust = DB.customers.find(c=>c.id===inv.customerId);
+            const st = invoiceStatus(inv);
+            return `<tr data-action="view-invoice" data-id="${inv.id}" style="cursor:pointer">
+              <td class="mono">${escapeHtml(inv.number)}</td>
+              <td>${escapeHtml(cust?cust.name:'—')}</td>
+              <td>${fmtDate(inv.date)}</td>
+              <td class="mono">${fmtMoney(inv.total)}</td>
+              <td><span class="badge badge-${st}">${st.toUpperCase()}</span></td>
+            </tr>`;
+          }).join('') : `<tr class="empty-row"><td colspan="5">No invoices yet.</td></tr>`}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+/* ---------------- Customers ---------------- */
+function renderCustomers(){
+  return `
+    <div class="topbar"><div><h1>Customers</h1><div class="desc">${DB.customers.length} total</div></div>
+      <button class="btn btn-primary" data-action="new-customer">+ Add Customer</button></div>
+    <div class="panel"><table>
+      <thead><tr><th>Name</th><th>Phone</th><th>State</th><th>GSTIN</th><th></th></tr></thead>
+      <tbody>
+        ${DB.customers.length ? DB.customers.map(c=>`
+          <tr>
+            <td>${escapeHtml(c.name)}</td>
+            <td>${escapeHtml(c.phone||'—')}</td>
+            <td>${escapeHtml(c.state||'—')}</td>
+            <td class="mono">${escapeHtml(c.gstin||'—')}</td>
+            <td style="text-align:right"><button class="btn btn-ghost btn-sm" data-action="edit-customer" data-id="${c.id}">Edit</button></td>
+          </tr>`).join('') : `<tr class="empty-row"><td colspan="5">No customers yet.</td></tr>`}
+      </tbody>
+    </table></div>`;
+}
+function customerForm(c){
+  c = c || {id:null, name:'', phone:'', email:'', gstin:'', addressLine1:'', city:'', state:'Kerala', pincode:''};
+  return `
+    <div class="modal-head"><h3>${c.id?'Edit':'Add'} Customer</h3><button class="modal-close" data-action="close-modal">&times;</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Name *</label><input id="cName" value="${escapeHtml(c.name)}"></div>
+      <div class="field-row">
+        <div class="field"><label>Phone *</label><input id="cPhone" value="${escapeHtml(c.phone)}"></div>
+        <div class="field"><label>Email</label><input id="cEmail" value="${escapeHtml(c.email||'')}"></div>
+      </div>
+      <div class="field"><label>GSTIN (optional, for B2B)</label><input id="cGstin" value="${escapeHtml(c.gstin||'')}" placeholder="33AAAAA0000A1Z5"></div>
+      <div class="field"><label>Address</label><input id="cAddress" value="${escapeHtml(c.addressLine1||'')}"></div>
+      <div class="field-row3">
+        <div class="field"><label>City</label><input id="cCity" value="${escapeHtml(c.city||'')}"></div>
+        <div class="field"><label>State *</label><input id="cState" value="${escapeHtml(c.state||'Kerala')}"></div>
+        <div class="field"><label>Pincode</label><input id="cPincode" value="${escapeHtml(c.pincode||'')}"></div>
+      </div>
+      <div style="font-size:11.5px;color:var(--slate)">State determines CGST+SGST vs IGST on every invoice for this customer.</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" data-action="close-modal">Cancel</button>
+      <button class="btn btn-primary" data-action="save-customer" data-id="${c.id||''}">Save Customer</button>
+    </div>`;
+}
+async function saveCustomer(id){
+  const name = document.getElementById('cName').value.trim();
+  const phone = document.getElementById('cPhone').value.trim();
+  const state = document.getElementById('cState').value.trim();
+  if(!name || !phone || !state){ showToast('Name, phone, and state are required'); return; }
+  const data = {
+    name, phone, state,
+    email: document.getElementById('cEmail').value.trim(),
+    gstin: document.getElementById('cGstin').value.trim(),
+    addressLine1: document.getElementById('cAddress').value.trim(),
+    city: document.getElementById('cCity').value.trim(),
+    pincode: document.getElementById('cPincode').value.trim(),
+  };
+  if(id){
+    const c = DB.customers.find(x=>x.id===id);
+    Object.assign(c, data);
+  } else {
+    DB.customers.push(Object.assign({id:cryptoId(), createdAt:new Date().toISOString()}, data));
+  }
+  await storeSet(KEYS.customers, DB.customers);
+  closeModal(); setView('customers'); showToast('Customer saved');
+}
+
+/* ---------------- Products ---------------- */
+function renderProducts(){
+  return `
+    <div class="topbar"><div><h1>Products &amp; Services</h1><div class="desc">${DB.products.length} total</div></div>
+      <button class="btn btn-primary" data-action="new-product">+ Add Product/Service</button></div>
+    <div class="panel"><table>
+      <thead><tr><th>Name</th><th>Type</th><th>HSN/SAC</th><th>Rate</th><th>GST %</th><th></th></tr></thead>
+      <tbody>
+        ${DB.products.length ? DB.products.map(p=>`
+          <tr>
+            <td>${escapeHtml(p.name)}</td>
+            <td><span class="badge badge-cancelled" style="text-decoration:none;background:#F1F0EA;color:var(--slate)">${p.category==='goods'?'GOODS':'SERVICE'}</span></td>
+            <td class="mono">${escapeHtml(p.hsn||'—')}</td>
+            <td class="mono">${fmtMoney(p.rate)} / ${escapeHtml(p.unit)}</td>
+            <td>${p.gstRate}%</td>
+            <td style="text-align:right"><button class="btn btn-ghost btn-sm" data-action="edit-product" data-id="${p.id}">Edit</button></td>
+          </tr>`).join('') : `<tr class="empty-row"><td colspan="6">No products or services yet.</td></tr>`}
+      </tbody>
+    </table></div>`;
+}
+function productForm(p){
+  p = p || {id:null, category:'goods', name:'', hsn:'', unit:'Nos', rate:0, gstRate:DB.settings.defaultGstRate};
+  return `
+    <div class="modal-head"><h3>${p.id?'Edit':'Add'} Product / Service</h3><button class="modal-close" data-action="close-modal">&times;</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Name *</label><input id="pName" value="${escapeHtml(p.name)}"></div>
+      <div class="field-row">
+        <div class="field"><label>Type *</label>
+          <select id="pCategory">
+            <option value="goods" ${p.category==='goods'?'selected':''}>Goods (HSN)</option>
+            <option value="service" ${p.category==='service'?'selected':''}>Service (SAC)</option>
+          </select>
+        </div>
+        <div class="field"><label>HSN / SAC Code *</label><input id="pHsn" value="${escapeHtml(p.hsn)}"></div>
+      </div>
+      <div class="field-row3">
+        <div class="field"><label>Rate (ex-GST) *</label><input id="pRate" type="number" min="0" step="0.01" value="${p.rate}"></div>
+        <div class="field"><label>Unit</label><input id="pUnit" value="${escapeHtml(p.unit)}" placeholder="Nos"></div>
+        <div class="field"><label>GST %</label><input id="pGstRate" type="number" min="0" max="28" step="0.01" value="${p.gstRate}"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-outline" data-action="close-modal">Cancel</button>
+      <button class="btn btn-primary" data-action="save-product" data-id="${p.id||''}">Save</button>
+    </div>`;
+}
+async function saveProduct(id){
+  const name = document.getElementById('pName').value.trim();
+  const hsn = document.getElementById('pHsn').value.trim();
+  const rate = Number(document.getElementById('pRate').value);
+  if(!name || !hsn || !Number.isFinite(rate) || rate<0){ showToast('Name, HSN/SAC, and a valid rate are required'); return; }
+  const data = {
+    name, hsn, rate,
+    category: document.getElementById('pCategory').value,
+    unit: document.getElementById('pUnit').value.trim() || 'Nos',
+    gstRate: Number(document.getElementById('pGstRate').value)||0,
+  };
+  if(id){
+    const p = DB.products.find(x=>x.id===id);
+    Object.assign(p, data);
+  } else {
+    DB.products.push(Object.assign({id:cryptoId()}, data));
+  }
+  await storeSet(KEYS.products, DB.products);
+  closeModal(); setView('products'); showToast('Saved');
+}
+
+/* ---------------- Invoices ---------------- */
+function renderInvoices(){
+  const sorted = [...DB.invoices].sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+  return `
+    <div class="topbar"><div><h1>Invoices</h1><div class="desc">${DB.invoices.length} total</div></div>
+      <button class="btn btn-primary" data-action="new-invoice">+ New Invoice</button></div>
+    <div class="panel"><table>
+      <thead><tr><th>Invoice #</th><th>Customer</th><th>Date</th><th>Total</th><th>Balance</th><th>Status</th></tr></thead>
+      <tbody>
+        ${sorted.length ? sorted.map(inv=>{
+          const cust = DB.customers.find(c=>c.id===inv.customerId);
+          const st = invoiceStatus(inv);
+          return `<tr data-action="view-invoice" data-id="${inv.id}" style="cursor:pointer">
+            <td class="mono" style="color:var(--teal-deep);font-weight:600">${escapeHtml(inv.number)}</td>
+            <td>${escapeHtml(cust?cust.name:'—')}</td>
+            <td>${fmtDate(inv.date)}</td>
+            <td class="mono">${fmtMoney(inv.total)}</td>
+            <td class="mono">${fmtMoney(invoiceBalance(inv))}</td>
+            <td><span class="badge badge-${st}">${st.toUpperCase()}</span></td>
+          </tr>`;
+        }).join('') : `<tr class="empty-row"><td colspan="6">No invoices yet.</td></tr>`}
+      </tbody>
+    </table></div>`;
+}
+
+let draft = null;
+function newInvoiceDraft(){
+  return { customerId: DB.customers[0]?DB.customers[0].id:'', date: todayISO(), dueDate:'', discountPercent:0, notes:'',
+    items:[ {productId:'', name:'', hsn:'', qty:1, unit:'Nos', rate:0, gstRate:DB.settings.defaultGstRate} ] };
+}
+function renderNewInvoice(){
+  draft = draft || newInvoiceDraft();
+  const cust = DB.customers.find(c=>c.id===draft.customerId);
+  const mode = cust ? gstMode(cust.state) : 'INTRA';
+  const t = computeInvoiceTotals(draft.items, mode, draft.discountPercent);
+
+  return `
+    <div class="topbar"><div><h1>New Invoice</h1></div>
+      <button class="btn btn-outline" data-action="goto-invoices">← Back to invoices</button></div>
+
+    ${DB.customers.length===0 ? `<div class="backup-banner warn">No customers yet — <a href="#" data-action="new-customer" style="text-decoration:underline">add one first</a>.</div>` : ''}
+
+    <div class="panel"><div class="panel-body">
+      <div class="field-row">
+        <div class="field"><label>Customer *</label>
+          <select id="invCustomer">
+            ${DB.customers.map(c=>`<option value="${c.id}" ${c.id===draft.customerId?'selected':''}>${escapeHtml(c.name)} (${escapeHtml(c.state)})</option>`).join('')}
+          </select>
+        </div>
+        <div class="field"><label>Tax Type</label>
+          <div style="padding:9px 11px;border:1px solid var(--border);border-radius:6px;background:#FAFAF7;color:var(--slate)">${mode==='INTRA'?'CGST + SGST (intra-state)':'IGST (inter-state)'}</div>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Invoice Date</label><input id="invDate" type="date" value="${draft.date}"></div>
+        <div class="field"><label>Due Date</label><input id="invDueDate" type="date" value="${draft.dueDate}"></div>
+      </div>
+    </div></div>
+
+    <div class="panel"><div class="panel-head"><h3>Line Items</h3><button class="btn btn-outline btn-sm" data-action="add-line">+ Add Line</button></div>
+    <div class="panel-body">
+      <div class="line-item-row" style="font-size:10.5px;color:var(--slate);text-transform:uppercase;font-weight:600;">
+        <div>Catalog</div><div>Description</div><div>Qty</div><div>Rate</div><div>HSN/SAC</div><div>GST%</div><div></div>
+      </div>
+      ${draft.items.map((it,i)=>`
+        <div class="line-item-row">
+          <select data-action="pick-product" data-idx="${i}">
+            <option value="">Custom line</option>
+            ${DB.products.map(p=>`<option value="${p.id}" ${p.id===it.productId?'selected':''}>${escapeHtml(p.name)}</option>`).join('')}
+          </select>
+          <input data-field="name" data-idx="${i}" value="${escapeHtml(it.name)}" placeholder="Description">
+          <input data-field="qty" data-idx="${i}" type="number" min="0" step="0.01" value="${it.qty}">
+          <input data-field="rate" data-idx="${i}" type="number" min="0" step="0.01" value="${it.rate}">
+          <input data-field="hsn" data-idx="${i}" value="${escapeHtml(it.hsn)}">
+          <input data-field="gstRate" data-idx="${i}" type="number" min="0" max="28" step="0.01" value="${it.gstRate}">
+          <button class="btn btn-ghost btn-sm" data-action="remove-line" data-idx="${i}">✕</button>
+        </div>`).join('')}
+    </div></div>
+
+    <div class="panel"><div class="panel-body">
+      <div class="field" style="max-width:160px"><label>Discount %</label><input id="invDiscount" type="number" min="0" max="100" step="0.01" value="${draft.discountPercent}"></div>
+      <div class="totals-box">
+        <div class="totals-row"><span>Subtotal</span><span class="mono">${fmtMoney(t.subtotal)}</span></div>
+        ${t.discountAmount>0?`<div class="totals-row"><span>Discount</span><span class="mono">-${fmtMoney(t.discountAmount)}</span></div>`:''}
+        <div class="totals-row"><span>Taxable Amount</span><span class="mono">${fmtMoney(t.taxable)}</span></div>
+        ${mode==='INTRA'
+          ? `<div class="totals-row"><span>CGST</span><span class="mono">${fmtMoney(t.cgst)}</span></div><div class="totals-row"><span>SGST</span><span class="mono">${fmtMoney(t.sgst)}</span></div>`
+          : `<div class="totals-row"><span>IGST</span><span class="mono">${fmtMoney(t.igst)}</span></div>`}
+        <div class="totals-row grand"><span>Total</span><span class="mono">${fmtMoney(t.total)}</span></div>
+      </div>
+      <div class="field" style="margin-top:14px"><label>Notes</label><textarea id="invNotes">${escapeHtml(draft.notes)}</textarea></div>
+    </div></div>
+
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:13px;font-size:14px" data-action="save-invoice">Create Invoice</button>
+  `;
+}
+function syncDraftFieldsFromInputs(){
+  if(!draft) return;
+  const cSel = document.getElementById('invCustomer'); if(cSel) draft.customerId = cSel.value;
+  const dDate = document.getElementById('invDate'); if(dDate) draft.date = dDate.value;
+  const dDue = document.getElementById('invDueDate'); if(dDue) draft.dueDate = dDue.value;
+  const dDisc = document.getElementById('invDiscount'); if(dDisc) draft.discountPercent = Number(dDisc.value)||0;
+  const dNotes = document.getElementById('invNotes'); if(dNotes) draft.notes = dNotes.value;
+  document.querySelectorAll('[data-field]').forEach(inp=>{
+    const idx = Number(inp.dataset.idx), field = inp.dataset.field;
+    if(!draft.items[idx]) return;
+    draft.items[idx][field] = (field==='qty'||field==='rate'||field==='gstRate') ? Number(inp.value)||0 : inp.value;
+  });
+}
+async function saveInvoice(){
+  syncDraftFieldsFromInputs();
+  if(!draft.customerId){ showToast('Select a customer'); return; }
+  const validItems = draft.items.filter(it=>it.name.trim() && it.qty>0);
+  if(!validItems.length){ showToast('Add at least one line item with a description and quantity'); return; }
+
+  const cust = DB.customers.find(c=>c.id===draft.customerId);
+  const mode = gstMode(cust.state);
+  const t = computeInvoiceTotals(validItems, mode, draft.discountPercent);
+
+  DB.settings.invoiceCounter = (DB.settings.invoiceCounter||0) + 1;
+  const number = `${DB.settings.invoicePrefix}-${String(DB.settings.invoiceCounter).padStart(4,'0')}`;
+
+  const inv = {
+    id: cryptoId(), number, customerId: draft.customerId, date: draft.date, dueDate: draft.dueDate||null,
+    placeOfSupply: cust.state, gstMode: mode, items: validItems, discountPercent: draft.discountPercent,
+    subtotal: t.subtotal, discountAmount: t.discountAmount, taxable: t.taxable, cgst: t.cgst, sgst: t.sgst, igst: t.igst, total: t.total,
+    paid: 0, payments: [], notes: draft.notes, cancelled:false, createdAt: new Date().toISOString(), createdBy: currentUser.id,
+  };
+  DB.invoices.push(inv);
+  await storeSet(KEYS.invoices, DB.invoices);
+  await storeSet(KEYS.settings, DB.settings);
+  draft = null;
+  setView('viewInvoice', inv.id);
+  showToast('Invoice created');
+}
+
+function renderViewInvoice(id){
+  const inv = DB.invoices.find(i=>i.id===id);
+  if(!inv) return `<div class="topbar"><h1>Invoice not found</h1></div>`;
+  const cust = DB.customers.find(c=>c.id===inv.customerId);
+  const st = invoiceStatus(inv);
+  const bal = invoiceBalance(inv);
+
+  return `
+    <div class="topbar">
+      <div><h1>${escapeHtml(inv.number)} <span class="badge badge-${st}" style="margin-left:8px;vertical-align:middle">${st.toUpperCase()}</span></h1>
+      <div class="desc">${escapeHtml(cust?cust.name:'—')} · Issued ${fmtDate(inv.date)}</div></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" data-action="goto-invoices">← Back</button>
+        <button class="btn btn-primary" data-action="print-invoice" data-id="${inv.id}">🖶 Print / Save PDF</button>
+      </div>
+    </div>
+    ${renderInvoicePreview(inv, cust)}
+    ${!inv.cancelled && bal>0.01 ? `
+    <div class="panel" style="max-width:720px;margin:20px auto 0">
+      <div class="panel-head"><h3>Record Payment</h3></div>
+      <div class="panel-body">
+        <div class="field-row">
+          <div class="field"><label>Amount</label><input id="payAmount" type="number" min="0.01" step="0.01" max="${bal}" value="${bal}"></div>
+          <div class="field"><label>Method</label>
+            <select id="payMethod"><option>Cash</option><option>UPI</option><option>Bank Transfer</option><option>Cheque</option><option>Card</option><option>Other</option></select>
+          </div>
+        </div>
+        <div class="field"><label>Reference (optional)</label><input id="payRef" placeholder="UPI txn ID, cheque no., etc."></div>
+        <button class="btn btn-primary" data-action="record-payment" data-id="${inv.id}">Record Payment</button>
+      </div>
+    </div>` : ''}
+    ${inv.payments && inv.payments.length ? `
+    <div class="panel" style="max-width:720px;margin:20px auto 0">
+      <div class="panel-head"><h3>Payment History</h3></div>
+      <table>${inv.payments.map(p=>`<tr><td>${fmtDateTime(p.date)}</td><td>${escapeHtml(p.method)}${p.ref?' · '+escapeHtml(p.ref):''}</td><td style="text-align:right" class="mono">${fmtMoney(p.amount)}</td></tr>`).join('')}</table>
+    </div>` : ''}
+    ${!inv.cancelled ? `<div style="max-width:720px;margin:16px auto 0;text-align:right"><button class="btn btn-ghost btn-sm" data-action="cancel-invoice" data-id="${inv.id}">Cancel this invoice</button></div>` : ''}
+  `;
+}
+function renderInvoicePreview(inv, cust){
+  const s = DB.settings;
+  return `
+  <div class="invoice-preview">
+    <div class="ihead">
+      <div>
+        <div class="biz">${escapeHtml(s.businessName)}</div>
+        <div class="meta">${escapeHtml(s.addressLine1||'')}</div>
+        <div class="meta">${escapeHtml(s.city)}, ${escapeHtml(s.state)} ${escapeHtml(s.pincode||'')}</div>
+        ${s.gstin?`<div class="meta">GSTIN: ${escapeHtml(s.gstin)}</div>`:''}
+        <div class="meta">${escapeHtml(s.phone)}</div>
+      </div>
+      <div><div class="doctitle">TAX INVOICE</div>
+        <div class="meta" style="text-align:right">No: ${escapeHtml(inv.number)}</div>
+        <div class="meta" style="text-align:right">Date: ${fmtDate(inv.date)}</div>
+        ${inv.dueDate?`<div class="meta" style="text-align:right">Due: ${fmtDate(inv.dueDate)}</div>`:''}
+      </div>
+    </div>
+    <div class="parties">
+      <div class="box">
+        <div class="lbl">Bill To</div>
+        <div style="font-weight:600">${escapeHtml(cust?cust.name:'—')}</div>
+        ${cust&&cust.addressLine1?`<div>${escapeHtml(cust.addressLine1)}</div>`:''}
+        ${cust&&cust.city?`<div>${escapeHtml(cust.city)}, ${escapeHtml(cust.state)} ${escapeHtml(cust.pincode||'')}</div>`:''}
+        <div>Phone: ${escapeHtml(cust?cust.phone:'—')}</div>
+        ${cust&&cust.gstin?`<div>GSTIN: ${escapeHtml(cust.gstin)}</div>`:''}
+      </div>
+      <div class="box">
+        <div class="lbl">Tax Details</div>
+        <div>Place of Supply: ${escapeHtml(inv.placeOfSupply)}</div>
+        <div>${inv.gstMode==='INTRA'?'CGST + SGST (Intra-State)':'IGST (Inter-State)'}</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Description</th><th>HSN/SAC</th><th style="text-align:right">Qty</th><th style="text-align:right">Rate</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>
+        ${inv.items.map((it,i)=>`<tr><td>${i+1}</td><td>${escapeHtml(it.name)}</td><td>${escapeHtml(it.hsn)}</td><td style="text-align:right">${it.qty} ${escapeHtml(it.unit||'')}</td><td style="text-align:right">${fmtMoney(it.rate)}</td><td style="text-align:right">${fmtMoney(it.qty*it.rate)}</td></tr>`).join('')}
+      </tbody>
+    </table>
+    <div style="margin-top:12px;max-width:280px;margin-left:auto">
+      <div class="row"><span>Subtotal</span><span>${fmtMoney(inv.subtotal)}</span></div>
+      ${inv.discountAmount>0?`<div class="row"><span>Discount</span><span>-${fmtMoney(inv.discountAmount)}</span></div>`:''}
+      ${inv.gstMode==='INTRA'
+        ? `<div class="row"><span>CGST</span><span>${fmtMoney(inv.cgst)}</span></div><div class="row"><span>SGST</span><span>${fmtMoney(inv.sgst)}</span></div>`
+        : `<div class="row"><span>IGST</span><span>${fmtMoney(inv.igst)}</span></div>`}
+      <div class="row grand"><span>Total</span><span>${fmtMoney(inv.total)}</span></div>
+      ${inv.paid>0?`<div class="row"><span>Paid</span><span>${fmtMoney(inv.paid)}</span></div><div class="row"><span>Balance</span><span>${fmtMoney(invoiceBalance(inv))}</span></div>`:''}
+    </div>
+    <div class="words">${amountInWords(inv.total)}</div>
+    ${s.bankAccountNumber?`<div style="margin-top:14px;font-size:11.5px;color:var(--slate)"><strong>Bank Details:</strong> ${escapeHtml(s.bankAccountName||'')}, A/c ${escapeHtml(s.bankAccountNumber)}, IFSC ${escapeHtml(s.bankIfsc||'')}, ${escapeHtml(s.bankName||'')}</div>`:''}
+    ${inv.notes?`<div style="margin-top:10px;font-size:11.5px;color:var(--slate)"><strong>Notes:</strong> ${escapeHtml(inv.notes)}</div>`:''}
+  </div>`;
+}
+function printInvoice(id){
+  const inv = DB.invoices.find(i=>i.id===id);
+  const cust = DB.customers.find(c=>c.id===inv.customerId);
+  document.getElementById('printArea').innerHTML = renderInvoicePreview(inv, cust);
+  window.print();
+}
+async function recordPayment(id){
+  const inv = DB.invoices.find(i=>i.id===id);
+  const amount = Number(document.getElementById('payAmount').value);
+  const bal = invoiceBalance(inv);
+  if(!Number.isFinite(amount) || amount<=0){ showToast('Enter a valid amount'); return; }
+  if(amount > bal + 0.01){ showToast(`Payment would exceed the balance due (${fmtMoney(bal)})`); return; }
+  inv.payments = inv.payments || [];
+  inv.payments.push({ amount, method: document.getElementById('payMethod').value, ref: document.getElementById('payRef').value.trim(), date: new Date().toISOString() });
+  inv.paid = round2((inv.paid||0) + amount);
+  await storeSet(KEYS.invoices, DB.invoices);
+  setView('viewInvoice', id);
+  showToast('Payment recorded');
+}
+async function cancelInvoice(id){
+  if(!confirm('Cancel this invoice? This cannot be undone.')) return;
+  const inv = DB.invoices.find(i=>i.id===id);
+  inv.cancelled = true;
+  await storeSet(KEYS.invoices, DB.invoices);
+  setView('viewInvoice', id);
+  showToast('Invoice cancelled');
+}
+
+/* ---------------- Payments Due ---------------- */
+function renderDues(){
+  const due = DB.invoices.filter(i=>!i.cancelled && invoiceBalance(i)>0.01).sort((a,b)=> new Date(a.date)-new Date(b.date));
+  const total = due.reduce((s,i)=>s+invoiceBalance(i),0);
+  return `
+    <div class="topbar"><div><h1>Payments Due</h1><div class="desc">${fmtMoney(total)} outstanding across ${due.length} invoice${due.length===1?'':'s'}</div></div></div>
+    <div class="panel"><table>
+      <thead><tr><th>Invoice #</th><th>Customer</th><th>Date</th><th>Total</th><th>Balance</th><th></th></tr></thead>
+      <tbody>
+        ${due.length ? due.map(inv=>{
+          const cust = DB.customers.find(c=>c.id===inv.customerId);
+          return `<tr>
+            <td class="mono">${escapeHtml(inv.number)}</td>
+            <td>${escapeHtml(cust?cust.name:'—')}</td>
+            <td>${fmtDate(inv.date)}</td>
+            <td class="mono">${fmtMoney(inv.total)}</td>
+            <td class="mono" style="color:var(--danger);font-weight:600">${fmtMoney(invoiceBalance(inv))}</td>
+            <td style="text-align:right"><button class="btn btn-outline btn-sm" data-action="view-invoice" data-id="${inv.id}">Open</button></td>
+          </tr>`;
+        }).join('') : `<tr class="empty-row"><td colspan="6">Nothing outstanding — everything's paid up.</td></tr>`}
+      </tbody>
+    </table></div>`;
+}
+
+/* ---------------- Settings ---------------- */
+function renderSettings(){
+  const s = DB.settings;
+  const dsb = s.lastBackupAt ? daysSince(s.lastBackupAt) : Infinity;
+  return `
+    <div class="topbar"><div><h1>Settings</h1></div></div>
+    ${dsb===Infinity
+      ? `<div class="backup-banner warn"><span>⚠ No backup yet.</span></div>`
+      : `<div class="backup-banner ok"><span>✓ Last backup: ${fmtDateTime(s.lastBackupAt)}</span></div>`}
+
+    <div class="panel"><div class="panel-head"><h3>Business Details</h3></div><div class="panel-body">
+      <div class="field-row">
+        <div class="field"><label>Business Name</label><input id="setBizName" value="${escapeHtml(s.businessName)}"></div>
+        <div class="field"><label>Phone</label><input id="setPhone" value="${escapeHtml(s.phone)}"></div>
+      </div>
+      <div class="field"><label>Address</label><input id="setAddress" value="${escapeHtml(s.addressLine1)}"></div>
+      <div class="field-row3">
+        <div class="field"><label>City</label><input id="setCity" value="${escapeHtml(s.city)}"></div>
+        <div class="field"><label>State *</label><input id="setState" value="${escapeHtml(s.state)}"></div>
+        <div class="field"><label>Pincode</label><input id="setPincode" value="${escapeHtml(s.pincode)}"></div>
+      </div>
+      <div class="field"><label>GSTIN</label><input id="setGstin" value="${escapeHtml(s.gstin)}"></div>
+      <div style="font-size:11.5px;color:var(--slate);margin-bottom:14px">State is compared against each customer's state to decide CGST+SGST vs IGST — keep this accurate.</div>
+
+      <div class="field-row3">
+        <div class="field"><label>Invoice Prefix</label><input id="setInvPrefix" value="${escapeHtml(s.invoicePrefix)}"></div>
+        <div class="field"><label>Default GST %</label><input id="setDefaultGst" type="number" min="0" max="28" step="0.01" value="${s.defaultGstRate}"></div>
+        <div class="field"><label>Invoices Created So Far</label><input value="${s.invoiceCounter||0}" disabled></div>
+      </div>
+
+      <h3 style="margin:18px 0 10px;font-size:14px;color:var(--teal-deep)">Bank Details (shown on invoices)</h3>
+      <div class="field-row">
+        <div class="field"><label>Account Name</label><input id="setBankName" value="${escapeHtml(s.bankAccountName||'')}"></div>
+        <div class="field"><label>Account Number</label><input id="setBankAcct" value="${escapeHtml(s.bankAccountNumber||'')}"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>IFSC</label><input id="setBankIfsc" value="${escapeHtml(s.bankIfsc||'')}"></div>
+        <div class="field"><label>Bank</label><input id="setBankBank" value="${escapeHtml(s.bankName||'')}"></div>
+      </div>
+      <button class="btn btn-primary" data-action="save-settings">Save Settings</button>
+    </div></div>
+
+    <div class="panel"><div class="panel-head"><h3>Backup &amp; Restore</h3></div><div class="panel-body">
+      <p style="font-size:12.5px;color:var(--slate);margin-top:0">
+        Your data lives only in this browser, on this device. Back it up regularly — especially before clearing browser data,
+        switching devices, or if you rely on this for real invoicing.
+      </p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+        <button class="btn btn-outline btn-sm" data-action="export-backup">⬇ Download Backup (.json)</button>
+        <label class="btn btn-outline btn-sm" style="margin:0">
+          ⬆ Restore from File
+          <input type="file" accept="application/json" id="importFileInput" style="display:none">
+        </label>
+      </div>
+      <div class="field"><label>Cloud Backup — Google Apps Script Web App URL</label>
+        <input id="setCloudUrl" value="${escapeHtml(s.cloudBackupUrl||'')}" placeholder="Paste your Google Apps Script URL here">
+      </div>
+      <div style="font-size:11.5px;color:var(--slate);margin-bottom:10px">
+        See <code>cloud-backup-script.gs.txt</code> in your files for a 5-minute setup guide — this sends a copy of your data
+        to a folder in your own Google Drive. Nothing is ever overwritten; every backup is a new dated file.
+      </div>
+      <button class="btn btn-outline btn-sm" data-action="cloud-backup-now">☁ Backup Now</button>
+    </div></div>
+  `;
+}
+async function saveSettings(){
+  const s = DB.settings;
+  s.businessName = document.getElementById('setBizName').value.trim();
+  s.phone = document.getElementById('setPhone').value.trim();
+  s.addressLine1 = document.getElementById('setAddress').value.trim();
+  s.city = document.getElementById('setCity').value.trim();
+  s.state = document.getElementById('setState').value.trim();
+  s.pincode = document.getElementById('setPincode').value.trim();
+  s.gstin = document.getElementById('setGstin').value.trim();
+  s.invoicePrefix = document.getElementById('setInvPrefix').value.trim() || 'INV';
+  s.defaultGstRate = Number(document.getElementById('setDefaultGst').value)||0;
+  s.bankAccountName = document.getElementById('setBankName').value.trim();
+  s.bankAccountNumber = document.getElementById('setBankAcct').value.trim();
+  s.bankIfsc = document.getElementById('setBankIfsc').value.trim();
+  s.bankName = document.getElementById('setBankBank').value.trim();
+  await storeSet(KEYS.settings, s);
+  showToast('Settings saved');
+  setView('settings');
+}
+
+/* ---------------- Backup / Restore ---------------- */
+async function exportBackup(){
+  const payload = { settings:DB.settings, customers:DB.customers, products:DB.products, invoices:DB.invoices, users:DB.users, exportedAt:new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `vidhya-billing-backup-${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  DB.settings.lastBackupAt = new Date().toISOString();
+  await storeSet(KEYS.settings, DB.settings);
+  showToast('Backup downloaded');
+  setView('settings');
+}
+async function importBackup(file){
+  try{
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if(!data.settings || !data.customers || !data.products || !data.invoices) throw new Error('bad file');
+    if(!confirm('This will replace all current data with the backup. Continue?')) return;
+    DB.settings = Object.assign({}, defaultSettings, data.settings);
+    DB.customers = data.customers; DB.products = data.products; DB.invoices = data.invoices; DB.users = data.users || DB.users;
+    await storeSet(KEYS.settings, DB.settings);
+    await storeSet(KEYS.customers, DB.customers);
+    await storeSet(KEYS.products, DB.products);
+    await storeSet(KEYS.invoices, DB.invoices);
+    await storeSet(KEYS.users, DB.users);
+    showToast('Backup restored');
+    setView('dashboard');
+  }catch(e){ showToast('Could not read that backup file'); }
+}
+async function cloudBackup(silent){
+  const url = DB.settings.cloudBackupUrl;
+  if(!url){ if(!silent) showToast('Add a cloud backup URL in Settings first'); return; }
+  const payload = { settings:DB.settings, customers:DB.customers, products:DB.products, invoices:DB.invoices, users:DB.users, exportedAt:new Date().toISOString() };
+  try{
+    await fetch(url, { method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(payload) });
+    DB.settings.lastBackupAt = new Date().toISOString();
+    await storeSet(KEYS.settings, DB.settings);
+    if(!silent) showToast('Cloud backup sent — check your Drive folder to confirm');
+    if(view==='dashboard'||view==='settings') render();
+  }catch(e){
+    if(!silent) showToast('Cloud backup failed — check the URL and your connection');
+  }
+}
+
+/* ---------------- Users ---------------- */
+function renderUsers(){
+  return `
+    <div class="topbar"><div><h1>Users</h1><div class="desc">Staff who can log in to this device</div></div>
+      <button class="btn btn-primary" data-action="new-user">+ Add User</button></div>
+    <div class="panel"><table>
+      <thead><tr><th>Name</th><th>Role</th><th></th></tr></thead>
+      <tbody>
+        ${DB.users.map(u=>`
+          <tr>
+            <td>${escapeHtml(u.name)}</td>
+            <td>${ROLES[u.role]?ROLES[u.role].label:u.role}</td>
+            <td style="text-align:right">
+              <button class="btn btn-ghost btn-sm" data-action="edit-user" data-id="${u.id}">Edit</button>
+              ${DB.users.length>1?`<button class="btn btn-ghost btn-sm" data-action="delete-user" data-id="${u.id}">Delete</button>`:''}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+function userForm(u){
+  u = u || {id:null, name:'', role:'staff', pin:''};
+  return `
+    <div class="modal-head"><h3>${u.id?'Edit':'Add'} User</h3><button class="modal-close" data-action="close-modal">&times;</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Name *</label><input id="uName" value="${escapeHtml(u.name)}"></div>
+      <div class="field"><label>Role</label>
+        <select id="uRole"><option value="staff" ${u.role==='staff'?'selected':''}>Staff</option><option value="admin" ${u.role==='admin'?'selected':''}>Admin</option></select>
+      </div>
+      <div class="field"><label>PIN (4 digits) *</label><input id="uPin" value="${escapeHtml(u.pin)}" maxlength="8"></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" data-action="close-modal">Cancel</button><button class="btn btn-primary" data-action="save-user" data-id="${u.id||''}">Save</button></div>`;
+}
+async function saveUser(id){
+  const name = document.getElementById('uName').value.trim();
+  const pin = document.getElementById('uPin').value.trim();
+  if(!name || !pin){ showToast('Name and PIN are required'); return; }
+  const data = { name, role: document.getElementById('uRole').value, pin };
+  if(id){ Object.assign(DB.users.find(u=>u.id===id), data); }
+  else { DB.users.push(Object.assign({id:cryptoId()}, data)); }
+  await storeSet(KEYS.users, DB.users);
+  closeModal(); setView('users'); showToast('Saved');
+}
+async function deleteUser(id){
+  if(DB.users.length<=1){ showToast('At least one user must remain'); return; }
+  if(!confirm('Delete this user?')) return;
+  DB.users = DB.users.filter(u=>u.id!==id);
+  await storeSet(KEYS.users, DB.users);
+  setView('users');
+}
+
+/* ---------------- Modal ---------------- */
+function openModal(html){ document.getElementById('modalBody').innerHTML = html; document.getElementById('modalBg').classList.add('show'); }
+function closeModal(){ document.getElementById('modalBg').classList.remove('show'); }
+
+/* ---------------- Event delegation ---------------- */
+function attachViewHandlers(){
+  document.querySelectorAll('[data-action]').forEach(el=>{
+    if(el.closest('#nav')) return;
+    if(el.dataset.action==='logout') return; // handled once in boot(), not re-attached per render
+    el.addEventListener('click', onAction);
+  });
+  const catSel = document.getElementById('invCustomer');
+  if(catSel) catSel.addEventListener('change', ()=>{ syncDraftFieldsFromInputs(); document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers(); });
+  document.querySelectorAll('.line-item-row input, .line-item-row select[data-action="pick-product"]').forEach(inp=>{
+    inp.addEventListener('input', ()=>{ syncDraftFieldsFromInputs(); const scroll=window.scrollY; document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers(); window.scrollTo(0,scroll); });
+  });
+  const importInput = document.getElementById('importFileInput');
+  if(importInput) importInput.addEventListener('change', (e)=>{ if(e.target.files[0]) importBackup(e.target.files[0]); });
+}
+function onAction(e){
+  e.preventDefault();
+  const el = e.currentTarget;
+  const action = el.dataset.action, id = el.dataset.id, idx = el.dataset.idx;
+  if(action==='goto-invoices') setView('invoices');
+  else if(action==='view-invoice'){ view='viewInvoice'; document.getElementById('main').innerHTML = renderViewInvoice(id); attachViewHandlers(); }
+  else if(action==='print-invoice') printInvoice(id);
+  else if(action==='record-payment') recordPayment(id);
+  else if(action==='cancel-invoice') cancelInvoice(id);
+  else if(action==='new-invoice'){ draft=null; view='newInvoice'; document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers(); }
+  else if(action==='save-invoice') saveInvoice();
+  else if(action==='add-line'){ syncDraftFieldsFromInputs(); draft.items.push({productId:'',name:'',hsn:'',qty:1,unit:'Nos',rate:0,gstRate:DB.settings.defaultGstRate}); document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers(); }
+  else if(action==='remove-line'){ syncDraftFieldsFromInputs(); draft.items.splice(Number(idx),1); if(!draft.items.length) draft.items.push({productId:'',name:'',hsn:'',qty:1,unit:'Nos',rate:0,gstRate:DB.settings.defaultGstRate}); document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers(); }
+  else if(action==='pick-product'){
+    syncDraftFieldsFromInputs();
+    const p = DB.products.find(x=>x.id===el.value);
+    if(p) draft.items[Number(idx)] = Object.assign(draft.items[Number(idx)], {productId:p.id, name:p.name, hsn:p.hsn, rate:p.rate, unit:p.unit, gstRate:p.gstRate});
+    else draft.items[Number(idx)].productId='';
+    document.getElementById('main').innerHTML = renderNewInvoice(); attachViewHandlers();
+  }
+  else if(action==='new-customer') openModal(customerForm());
+  else if(action==='edit-customer') openModal(customerForm(DB.customers.find(c=>c.id===id)));
+  else if(action==='save-customer') saveCustomer(id||null);
+  else if(action==='new-product') openModal(productForm());
+  else if(action==='edit-product') openModal(productForm(DB.products.find(p=>p.id===id)));
+  else if(action==='save-product') saveProduct(id||null);
+  else if(action==='new-user') openModal(userForm());
+  else if(action==='edit-user') openModal(userForm(DB.users.find(u=>u.id===id)));
+  else if(action==='save-user') saveUser(id||null);
+  else if(action==='delete-user') deleteUser(id);
+  else if(action==='close-modal') closeModal();
+  else if(action==='save-settings') saveSettings();
+  else if(action==='export-backup') exportBackup();
+  else if(action==='cloud-backup-now'){ DB.settings.cloudBackupUrl = document.getElementById('setCloudUrl').value.trim(); storeSet(KEYS.settings, DB.settings).then(()=>cloudBackup(false)); }
+}
+
+/* logout button lives in the sidebar nav-foot area via a simple long-press-free approach: */
+document.addEventListener('DOMContentLoaded', ()=>{
+  boot();
+  if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+});
+</script>
+</body>
+</html>
